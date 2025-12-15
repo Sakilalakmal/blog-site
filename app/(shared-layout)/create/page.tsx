@@ -1,5 +1,6 @@
 "use client";
 
+import { createBlogAction } from "@/app/actions";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -41,15 +42,10 @@ export default function CreateBlogPage() {
 
   function onSubmit(values: z.infer<typeof blogSchema>) {
     console.log(values);
-    startTransition(() => {
-      mutation({
-        title: values.title,
-        content: values.content,
-      });
-
+    startTransition(async () => {
+      await createBlogAction(values);
       toast.success("Blog post created successfully!");
       form.reset();
-      router.push("/");
     });
   }
 
