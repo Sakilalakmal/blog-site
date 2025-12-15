@@ -5,9 +5,13 @@ import { Button, buttonVariants } from "../ui/button";
 import { ThemeModeToggler } from "../ThemeModeToggler";
 import { useConvexAuth } from "convex/react";
 import { authClient } from "@/lib/auth-client";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 export function NavBar() {
   const { isAuthenticated, isLoading } = useConvexAuth();
+
+  const router = useRouter();
 
   return (
     <nav className="w-full py-5 flex items-center justify-between">
@@ -48,7 +52,23 @@ export function NavBar() {
       <div className="flex items-center gap-4">
         <ThemeModeToggler />
         {isLoading ? null : isAuthenticated ? (
-          <Button onClick={() => authClient.signOut({})}>Log Out</Button>
+          <Button
+            onClick={() =>
+              authClient.signOut({
+                fetchOptions: {
+                  onSuccess: () => {
+                    toast.success("Logged out successfully");
+                    router.push("/");
+                  },
+                  onError: () => {
+                    toast.error("There was an error logging out");
+                  },
+                },
+              })
+            }
+          >
+            Log Out
+          </Button>
         ) : (
           <>
             <Link

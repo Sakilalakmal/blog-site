@@ -20,8 +20,14 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
 import z from "zod";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { useTransition } from "react";
+import { Loader2Icon } from "lucide-react";
 
 export default function SignUpPage() {
+  const [ispending, startTransition] = useTransition();
+
   const form = useForm({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
@@ -30,11 +36,25 @@ export default function SignUpPage() {
       password: "",
     },
   });
+
+  const router = useRouter();
+
   async function onSubmit(data: z.infer<typeof signUpSchema>) {
-    await authClient.signUp.email({
-      email: data.email,
-      name: data.name,
-      password: data.password,
+    startTransition(async () => {
+      await authClient.signUp.email({
+        email: data.email,
+        name: data.name,
+        password: data.password,
+        fetchOptions: {
+          onSuccess: () => {
+            toast.success("Account created successfully");
+            router.push("/");
+          },
+          onError: () => {
+            toast.error("There was an error creating the account");
+          },
+        },
+      });
     });
   }
 
@@ -101,7 +121,13 @@ export default function SignUpPage() {
               )}
             />
 
-            <Button>Create an account</Button>
+            <Button disabled={ispending}>
+              {ispending ? (
+                <Loader2Icon className="size-4 animate-spin" />
+              ) : (
+                "Create an account"
+              )}
+            </Button>
           </FieldGroup>
         </form>
       </CardContent>
