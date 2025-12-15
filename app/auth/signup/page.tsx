@@ -18,6 +18,8 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { authClient } from "@/lib/auth-client";
+import z from "zod";
 
 export default function SignUpPage() {
   const form = useForm({
@@ -28,8 +30,12 @@ export default function SignUpPage() {
       password: "",
     },
   });
-  function onSubmit() {
-    console.log("yoow");
+  async function onSubmit(data: z.infer<typeof signUpSchema>) {
+    await authClient.signUp.email({
+      email: data.email,
+      name: data.name,
+      password: data.password,
+    });
   }
 
   return (
