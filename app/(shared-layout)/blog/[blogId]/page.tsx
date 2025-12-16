@@ -1,8 +1,10 @@
 import { buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { CommentSection } from "@/components/web/CommentSection";
+import { PostPresence } from "@/components/web/PostPresence";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
+import { getToken } from "@/lib/auth-server";
 import { fetchQuery, preloadQuery } from "convex/nextjs";
 import { ArrowLeft } from "lucide-react";
 import { Metadata } from "next";
@@ -18,6 +20,7 @@ export async function generateMetadata({
 }: BlogIdPageProps): Promise<Metadata> {
   const { blogId } = await params;
   const post = await fetchQuery(api.posts.getpostById, { postId: blogId });
+
   if (!post) {
     return {
       title: "Blog not found",
@@ -32,11 +35,14 @@ export async function generateMetadata({
 export default async function BlogIdPage({ params }: BlogIdPageProps) {
   const { blogId } = await params;
 
-  const [posts, preLoadedComments] = await Promise.all([
+  const token = await getToken();
+
+  const [posts, preLoadedComments, userId] = await Promise.all([
     fetchQuery(api.posts.getpostById, { postId: blogId }),
     preloadQuery(api.comment.getCommentsForPost, {
       postId: blogId,
     }),
+    fetchQuery(api.presence.getUserId, {}, { token }),
   ]);
 
   if (!posts) {
@@ -73,9 +79,12 @@ export default async function BlogIdPage({ params }: BlogIdPageProps) {
         <h1 className="text-4xl font-bold tracking-tight text-muted-foreground">
           {posts?.title}
         </h1>
-        <p className="text-sm text-muted-foreground">
-          Posted on : {new Date(posts?._creationTime).toLocaleDateString()}
-        </p>
+        <div className="flex items-center gap-4">
+          <p className="text-sm text-muted-foreground">
+            Posted on : {new Date(posts?._creationTime).toLocaleDateString()}
+          </p>
+          {userId && <PostPresence roomId={posts._id} userId={userId} />}
+        </div>
       </div>
 
       <Separator className="my-8" />
