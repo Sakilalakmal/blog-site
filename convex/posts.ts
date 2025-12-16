@@ -58,3 +58,23 @@ export const generateImageUploadUrl = mutation({
     return await ctx.storage.generateUploadUrl();
   },
 });
+
+export const getpostById = query({
+  args: { postId: v.id("posts") },
+  handler: async (ctx, args) => {
+    const posts = await ctx.db.get(args.postId);
+
+    if (!posts) {
+      throw new ConvexError("Post not found");
+    }
+
+    const resolvedImageUrl = posts?.imageStorageId
+      ? await ctx.storage.getUrl(posts.imageStorageId)
+      : null;
+
+    return {
+      ...posts,
+      imageUrl: resolvedImageUrl,
+    };
+  },
+});
