@@ -38,11 +38,12 @@ async function LoadBloglist() {
           <div className="relative h-48 w-full overflow-hidden">
             <Image
               src={
+                post.imageUrl ??
                 "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTCZanEbVzcVbfjE3cPhhYIpv_LccloMzQqgA&s"
               }
               fill
               alt="blog image"
-              className="rounded-t-lg"
+              className="rounded-t-lg object-cover"
             />
           </div>
           <CardContent>
