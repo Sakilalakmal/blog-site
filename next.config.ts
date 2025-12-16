@@ -9,6 +9,11 @@ const nextConfig: NextConfig = {
         protocol: "https",
         port: "",
       },
+      {
+        hostname: "benevolent-echidna-746.convex.cloud",
+        protocol: "https",
+        port: "",
+      },
     ],
   },
 };
